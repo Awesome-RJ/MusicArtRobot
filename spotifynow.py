@@ -47,13 +47,13 @@ def unlink(update, context):
 
 def code(text):
     'get authtoken from a temporary json given by the webserver'
-    tempjson = requests.get('https://jsonblob.com/api/'+jkey).json()
+    tempjson = requests.get(f'https://jsonblob.com/api/{jkey}').json()
     code = tempjson[text[7:]]
     keycount = len(tempjson.keys())
     if keycount > 10:
-        for x in range(0, 5):
+        for x in range(5):
             tempjson.pop(list(tempjson.keys())[x])
-    requests.put('https://jsonblob.com/api/'+jkey, json=tempjson)
+    requests.put(f'https://jsonblob.com/api/{jkey}', json=tempjson)
     return(code)
 
 def start(update, context):
@@ -76,7 +76,10 @@ def start(update, context):
             data = {'grant_type':'authorization_code','code':code(text),'redirect_uri':redirect_uri,'client_id':client_id,'client_secret':client_secret}
             authtoken = requests.post('https://accounts.spotify.com/api/token', data=data).json()['refresh_token']
         except: 
-            update.message.reply_text(f'Something went wrong. Try to /reconnect your account.')
+            update.message.reply_text(
+                'Something went wrong. Try to /reconnect your account.'
+            )
+
         else:
             sql.add_token(authtoken, update.effective_user.id)
             print(update.message.from_user.username+' just linked their account.')
@@ -226,10 +229,11 @@ if __name__ == "__main__":
     with open("config.json",'r') as conf: 
         config = json.load(conf)
     dumpchannel, jkey, client_id, client_secret, redirect_uri, bot_token, sudoList = config.values()
-    authlink = f"https://accounts.spotify.com/authorize?client_id=5e259dc4f4d148de92c2b612e4616f78&response_type=code&redirect_uri=http://google.com/callback&scope=user-read-currently-playing"
+    authlink = "https://accounts.spotify.com/authorize?client_id=5e259dc4f4d148de92c2b612e4616f78&response_type=code&redirect_uri=http://google.com/callback&scope=user-read-currently-playing"
+
 
     updater = Updater(bot_token, use_context=True)
-    os.system("title " + Bot(bot_token).first_name)
+    os.system(f"title {Bot(bot_token).first_name}")
     logging.basicConfig(format='\n\n%(levelname)s\n%(asctime)s\n%(name)s\n%(message)s', level=logging.ERROR)
 
     USERNAME, AUTHTOKEN = range(2)

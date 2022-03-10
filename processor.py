@@ -27,11 +27,16 @@ def process(name, song, album, artist, current, total, user, cover):
 
     #fonts
     namefont = ImageFont.truetype('Fonts\\Montserrat-SemiBold.ttf',32)
-    if not song == str(song.encode('utf-8'))[2:-1]:
-        songfont = ImageFont.truetype('Fonts\\arial-unicode-ms.ttf',29)
-    else:
-        songfont = ImageFont.truetype('Fonts\\Montserrat-SemiBold.ttf',29)
-    if not album == str(album.encode('utf-8'))[2:-1] or not artist == str(artist.encode('utf-8'))[2:-1]:
+    songfont = (
+        ImageFont.truetype('Fonts\\Montserrat-SemiBold.ttf', 29)
+        if song == str(song.encode('utf-8'))[2:-1]
+        else ImageFont.truetype('Fonts\\arial-unicode-ms.ttf', 29)
+    )
+
+    if (
+        album != str(album.encode('utf-8'))[2:-1]
+        or artist != str(artist.encode('utf-8'))[2:-1]
+    ):
         infofont = ImageFont.truetype('Fonts\\arial-unicode-ms.ttf',26)
     else:
         infofont = ImageFont.truetype('Fonts\\OpenSansCondensed-Bold.ttf',26)
@@ -40,8 +45,20 @@ def process(name, song, album, artist, current, total, user, cover):
     #texts
     draw.text((184, 21 ), name+'\nis now listening to', fill=(227,255,238), font=namefont)
     draw.text((184, 138), truncate(song, songfont, 380), fill=(233,255,244), font=songfont)
-    draw.text((184, 174), 'by '+truncate(artist, infofont, 348), fill=(186,253,209), font=infofont)
-    draw.text((184, 207), 'on '+truncate(album, infofont, 348), fill=(186,253,209), font=infofont)
+    draw.text(
+        (184, 174),
+        f'by {truncate(artist, infofont, 348)}',
+        fill=(186, 253, 209),
+        font=infofont,
+    )
+
+    draw.text(
+        (184, 207),
+        f'on {truncate(album, infofont, 348)}',
+        fill=(186, 253, 209),
+        font=infofont,
+    )
+
 
     #progress
     draw.rectangle((568, 251) + (185, 254), (70,190,120))
@@ -57,7 +74,6 @@ def process(name, song, album, artist, current, total, user, cover):
 
 # shorten extra long text
 def truncate(text, font, limit):
-    edited = True if font.getsize(text)[0] > limit else False
+    edited = font.getsize(text)[0] > limit
     while font.getsize(text)[0] > limit: text = text[:-1]
-    if edited: return(text.strip()+'..')
-    else: return(text.strip())
+    return f'{text.strip()}..' if edited else (text.strip())
